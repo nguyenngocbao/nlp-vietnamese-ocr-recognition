@@ -46,7 +46,7 @@ def build(epochs):
 
 Fine-tune `PP-OCRv5_mobile_rec` trên `rec_train.txt` ({epochs} epoch), chọn checkpoint cuối, rồi đánh giá trên `rec_test.txt` bằng đúng `src/metrics.py` đã dùng cho baseline. Hai notebook fine-tune (2 và 4 epoch) được sinh từ **cùng một template** (`scripts/make_finetune_notebooks.py`) và dùng hai config chỉ khác `Global.epoch_num` và đường dẫn output, nên chênh lệch kết quả chỉ do số epoch.
 
-**Chuẩn bị trên Kaggle:** gắn Input `baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources`, bật **GPU T4 x2** và **Internet**. Tuỳ chọn: thêm Kaggle Secret `HF_TOKEN` (quyền ghi) để cell cuối đẩy checkpoint lên Hugging Face; không có thì cell tự bỏ qua. Dùng **Save & Run All** để chạy trọn pipeline.
+**Chuẩn bị trên Kaggle:** gắn Input `baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources`, bật **GPU T4 x2** và **Internet**. Tuỳ chọn: thêm Kaggle Secret `huggingface.co` (quyền ghi) để cell cuối đẩy checkpoint lên Hugging Face; không có thì cell tự bỏ qua. Dùng **Save & Run All** để chạy trọn pipeline.
 '''))
     for cid in ("b02-install-md", "b03-install", "b04-env-md", "b05-env", "b05a-repo-md", "b05b-repo",
                 "b06-data-md", "b07-data", "b08-labels-md", "3ea17b70"):
@@ -324,16 +324,16 @@ except Exception as exc:  # không chặn pipeline
     cells.append(md("f23-upload-md", f'''
 ## 15. Lưu checkpoint lên Hugging Face và liệt kê file cần lấy
 
-Nếu có Kaggle Secret `HF_TOKEN`, đẩy thư mục `{run}/` (checkpoint `latest`, `best_accuracy`, mô hình suy luận, config, log) lên repo `nngocbao090/hcmus-vi-paddleocr-rec`; file `*.pdopt` (trạng thái optimizer, không cần để suy luận) bị bỏ qua. Không có token thì bỏ qua, checkpoint vẫn nằm trong Output của notebook. Hai file kết quả nhỏ trong `results/` (JSONL và metrics) là thứ cần đưa vào repository.
+Nếu có Kaggle Secret `huggingface.co`, đẩy thư mục `{run}/` (checkpoint `latest`, `best_accuracy`, mô hình suy luận, config, log) lên repo `nngocbao090/hcmus-vi-paddleocr-rec`; file `*.pdopt` (trạng thái optimizer, không cần để suy luận) bị bỏ qua. Không có token thì bỏ qua, checkpoint vẫn nằm trong Output của notebook. Hai file kết quả nhỏ trong `results/` (JSONL và metrics) là thứ cần đưa vào repository.
 '''))
     cells.append(code("f24-upload", '''
 HF_REPO = "nngocbao090/hcmus-vi-paddleocr-rec"
 try:
     from kaggle_secrets import UserSecretsClient
-    hf_token = UserSecretsClient().get_secret("HF_TOKEN")
+    hf_token = UserSecretsClient().get_secret("huggingface.co")
 except Exception as exc:
     hf_token = None
-    print("No HF_TOKEN secret, skipping upload:", exc)
+    print("No huggingface.co secret, skipping upload:", exc)
 
 if hf_token:
     from huggingface_hub import HfApi
