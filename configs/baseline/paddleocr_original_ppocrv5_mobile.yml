@@ -8,6 +8,8 @@ environment:
   paddlepaddle_version: 3.2.1  # paddlepaddle-gpu, bản build cu126
   gpu: null  # ghi vào metrics_*.json khi chạy
   seed: 42
+inference:
+  batch_size: 1  # batch 64 làm 118/200 dự đoán khác batch 1 (padding theo batch); dùng 1 để ổn định
 data:
   kaggle_dataset: baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources
   # Kaggle mount tại /kaggle/input/datasets/baonguyenngoc0902/<dataset> (cũ: /kaggle/input/<dataset>),
