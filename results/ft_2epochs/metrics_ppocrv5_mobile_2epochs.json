@@ -1,0 +1,34 @@
+{
+  "model": "PP-OCRv5_mobile_rec",
+  "run": "ppocrv5_mobile_2epochs",
+  "split": "rec_test.txt",
+  "finetune_epochs": 2,
+  "checkpoint": "latest (final epoch)",
+  "num_samples": 3003,
+  "acc": 0.04395604395604396,
+  "norm_edit_dis": 0.809745019562875,
+  "acc_ignore_space": 0.06227106227106227,
+  "norm_edit_dis_ignore_space": 0.8273415349694583,
+  "batch_size": 1,
+  "train_seconds": 6884.50649075,
+  "train_gpus": "0,1",
+  "model_init_seconds": 0.7104819699998188,
+  "prediction_seconds": 62.29172264200042,
+  "config": "configs/ppocrv5_mobile/ppocrv5_mobile_2epochs.yml",
+  "environment": {
+    "python": "3.13.15",
+    "platform": "Linux-6.18.48+-x86_64-with-glibc2.39",
+    "paddlepaddle": "3.2.1",
+    "paddleocr": "3.3.0",
+    "paddlex": "3.3.0",
+    "seed": 42,
+    "gpu": [
+      "Tesla T4, 580.178.04, 15360 MiB",
+      "Tesla T4, 580.178.04, 15360 MiB"
+    ],
+    "repo_url": "https://github.com/nguyenngocbao/nlp-vietnamese-ocr-recognition.git",
+    "repo_commit": "733b4bad021cb0496b514ad572f3b99d506922dc",
+    "paddleocr_source_ref": "v3.3.0",
+    "paddleocr_source_commit": "c2b0390d9a89ee76148be5c9d758a028527214d4"
+  }
+}
