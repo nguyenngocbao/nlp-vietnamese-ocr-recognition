@@ -106,7 +106,7 @@ Train:
   sampler:
     name: MultiScaleSampler
     scales: [[960, 32], [960, 48], [960, 64]]
-    first_bs: &bs 48
+    first_bs: &bs 24
     fix_bs: false
     divided_factor: [8, 16] # w, h
     is_training: True

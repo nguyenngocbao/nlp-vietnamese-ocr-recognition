@@ -22,7 +22,7 @@ PRETRAINED = "/kaggle/working/pretrained/PP-OCRv5_mobile_rec_pretrained.pdparams
 # Shared by BOTH runs (not experiment variables).
 MAX_TEXT_LEN = 100   # upstream 25; Vietnamese lines reach 80 chars (test max = 80)
 IMG_W = 960          # upstream 320; ~120 CTC steps for lines of up to 80 chars
-FIRST_BS = 48        # keeps pixels per batch close to upstream (128 at 320 px width)
+FIRST_BS = 24        # per-GPU batch at the smallest scale; 48 ran out of memory on a 15 GB T4 at 960 px width
 SEED = 42            # PaddleOCR defaults to 1024 when Global.seed is absent
 WARMUP_EPOCH = 0.5   # upstream 5 would be longer than the whole 2-epoch run
 
