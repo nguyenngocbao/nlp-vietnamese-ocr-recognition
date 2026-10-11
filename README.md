@@ -51,4 +51,4 @@ The baseline is the unmodified official `latin_PP-OCRv5_mobile_rec` model (the s
 python eval.py --predictions results/pred_baseline_ppocrv5_mobile.jsonl
 ```
 
-The utility reports exact-match `acc` and `norm_edit_dis`.
+The utility applies NFC normalisation and reports `acc` and `norm_edit_dis` (spaces kept, the headline numbers) plus `acc_ignore_space` and `norm_edit_dis_ignore_space` (all whitespace removed, for comparison only).
