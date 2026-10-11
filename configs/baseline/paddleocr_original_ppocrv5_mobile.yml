@@ -1,0 +1,14 @@
+experiment_name: baseline_latin_ppocrv5_mobile_original
+fine_tuned: false
+model: latin_PP-OCRv5_mobile_rec
+environment:
+  paddleocr_version: null
+  paddlepaddle_version: null
+  gpu: null
+  seed: 42
+data:
+  kaggle_dataset: baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources
+  character_dict_path: /kaggle/input/hcmus-nlp-vietnamese-recognition-resources/vi_dict.txt
+  test_label_file: /kaggle/working/data/rec_test.txt
+output:
+  predictions: results/pred_baseline_latin_ppocrv5_mobile.jsonl

@@ -1,0 +1,14 @@
+data/
+checkpoints/
+output/
+pretrained/
+*.pdparams
+*.pdopt
+*.pdmodel
+*.pdiparams
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.DS_Store

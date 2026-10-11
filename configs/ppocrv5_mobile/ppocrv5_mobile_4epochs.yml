@@ -1,0 +1,19 @@
+# TEMPLATE: replace with a complete config copied from the pinned upstream revision.
+# Keep all values identical to ppocrv5_mobile_2epochs.yml except below.
+Global:
+  model_name: PP-OCRv5_mobile_rec
+  epoch_num: 4
+  save_model_dir: /kaggle/working/output/ppocrv5_mobile_4epochs
+  save_epoch_step: 1
+  pretrained_model: /kaggle/working/pretrained/PP-OCRv5_mobile_rec_pretrained
+  character_dict_path: /kaggle/input/hcmus-nlp-vietnamese-recognition-resources/vi_dict.txt
+Train:
+  dataset:
+    data_dir: /kaggle/working/data
+    label_file_list:
+      - /kaggle/working/data/rec_train.txt
+Eval:
+  dataset:
+    data_dir: /kaggle/working/data
+    label_file_list:
+      - /kaggle/working/data/rec_val.txt

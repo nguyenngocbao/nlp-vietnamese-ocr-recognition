@@ -1,0 +1,6 @@
+# PaddleOCR is installed in Kaggle from the pinned official source tag v3.0.3.
+# Record exact runtime versions in docs/experiment_log.md after each run.
+paddlepaddle-gpu>=3.0.0,<4.0.0
+numpy>=1.26,<3.0
+PyYAML>=6.0
+python-Levenshtein>=0.25
