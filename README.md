@@ -4,11 +4,11 @@ PaddleOCR text-recognition experiments for the HCMUS NLP Vietnamese recognition 
 
 ## Thành viên nhóm
 
-| Họ và tên | Mã số học viên |
-|---|---|
-| Bùi Viễn Dương | 25C02015 |
-| Nguyễn Minh Thúy Vy | 25C02030 |
-| Nguyễn Ngọc Bảo | 25C02031 |
+| Họ và tên | Mã số học viên | Công việc | Đóng góp (%) |
+|---|---|---|---:|
+| Bùi Viễn Dương | 25C02015 | _(điền)_ | _(điền)_ |
+| Nguyễn Minh Thúy Vy | 25C02030 | _(điền)_ | _(điền)_ |
+| Nguyễn Ngọc Bảo | 25C02031 | _(điền)_ | _(điền)_ |
 
 ## Layout
 
@@ -25,15 +25,15 @@ Large artifacts are excluded from Git: image data, pretrained weights, checkpoin
 
 ## Kaggle data
 
-Attach `baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources` to every notebook. Kaggle mounts it at:
+Attach `baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources` to every notebook, and turn on GPU and Internet. Kaggle mounts it read-only at:
 
 ```text
-/kaggle/input/hcmus-nlp-vietnamese-recognition-resources
+/kaggle/input/datasets/baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources
 ```
 
-Extract `vi_rec_100k.zip` into `/kaggle/working/data`; never write to `/kaggle/input`.
+(older mounts use `/kaggle/input/hcmus-nlp-vietnamese-recognition-resources`; the notebooks try both). The archive is already extracted: the dataset contains `vi_dict.txt` and the folder `vi_rec_100k/` with `rec_train.txt`, `rec_val.txt`, `rec_test.txt` and the images. Never write to `/kaggle/input`; small outputs go to `/kaggle/working/results`.
 
-Each notebook clones the pinned official PaddleOCR source and this project repository into `/kaggle/working`. Commit and push code/configuration changes before starting a Kaggle run. Download Kaggle outputs and commit them from a local clone; notebooks do not push to GitHub.
+Notebook 01 is self-contained (no clone). Download Kaggle outputs and commit them from a local clone; notebooks do not push to GitHub. Fine-tuning notebooks will additionally clone the official PaddleOCR source at tag `v3.3.0`.
 
 ## Required notebooks
 
@@ -43,10 +43,12 @@ Each notebook clones the pinned official PaddleOCR source and this project repos
 
 The two fine-tuning runs start from the same pretrained checkpoint and differ only in `Global.epoch_num`.
 
+The baseline is the unmodified official `latin_PP-OCRv5_mobile_rec` model (the same model that is fine-tuned), run with PaddlePaddle 3.2.1, PaddleOCR 3.3.0 and PaddleX 3.3.0 (see `requirements.txt`). Seed is 42 everywhere. All reported numbers are measured on `rec_test.txt` only.
+
 ## JSONL evaluation
 
 ```bash
-python eval.py --predictions results/pred_baseline_latin_ppocrv5_mobile.jsonl
+python eval.py --predictions results/pred_baseline_ppocrv5_mobile.jsonl
 ```
 
 The utility reports exact-match `acc` and `norm_edit_dis`.
