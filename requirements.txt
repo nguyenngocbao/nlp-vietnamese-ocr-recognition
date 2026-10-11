@@ -1,6 +1,11 @@
-# PaddleOCR is installed in Kaggle from the pinned official source tag v3.0.3.
-# Record exact runtime versions in docs/experiment_log.md after each run.
-paddlepaddle-gpu>=3.0.0,<4.0.0
+# Môi trường chạy: Kaggle (GPU). Ghim đúng phiên bản đã dùng cho mọi số liệu trong báo cáo.
+# paddlepaddle-gpu cần bản build cu126, cài từ file wheel (xem mục 1 của notebook 01) vì
+# bản trên PyPI mặc định là build CUDA khác:
+#   pip download paddlepaddle-gpu==3.2.1 --no-deps -i https://www.paddlepaddle.org.cn/packages/stable/cu126/
+paddlepaddle-gpu==3.2.1
+paddleocr==3.3.0
+paddlex==3.3.0  # PaddleOCR 3.3.0 yêu cầu paddlex>=3.3.0,<3.4.0
 numpy>=1.26,<3.0
 PyYAML>=6.0
 python-Levenshtein>=0.25
+tqdm>=4.0

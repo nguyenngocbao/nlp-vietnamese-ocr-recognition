@@ -1,14 +1,19 @@
-experiment_name: baseline_latin_ppocrv5_mobile_original
+# Thiết lập baseline; notebooks/01_baseline_paddleocr_original.ipynb dùng cùng các giá trị này.
+experiment_name: baseline_ppocrv5_mobile_original
 fine_tuned: false
-model: latin_PP-OCRv5_mobile_rec
+model: latin_PP-OCRv5_mobile_rec  # cùng model được fine-tune ở notebook 02 và 03
 environment:
-  paddleocr_version: null
-  paddlepaddle_version: null
-  gpu: null
+  paddleocr_version: 3.3.0
+  paddlex_version: 3.3.0  # PaddleOCR 3.3.0 yêu cầu paddlex>=3.3.0,<3.4.0
+  paddlepaddle_version: 3.2.1  # paddlepaddle-gpu, bản build cu126
+  gpu: null  # ghi vào metrics_*.json khi chạy
   seed: 42
 data:
   kaggle_dataset: baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources
-  character_dict_path: /kaggle/input/hcmus-nlp-vietnamese-recognition-resources/vi_dict.txt
-  test_label_file: /kaggle/working/data/rec_test.txt
+  # Kaggle mount tại /kaggle/input/datasets/baonguyenngoc0902/<dataset> (cũ: /kaggle/input/<dataset>),
+  # dữ liệu đã giải nén sẵn thành vi_rec_100k/
+  character_dict_path: vi_dict.txt  # không dùng ở baseline; ghi lại cho thống nhất với fine-tune
+  test_label_file: vi_rec_100k/rec_test.txt
 output:
-  predictions: results/pred_baseline_latin_ppocrv5_mobile.jsonl
+  predictions: results/pred_baseline_ppocrv5_mobile.jsonl
+  metrics: results/metrics_baseline_ppocrv5_mobile.json
