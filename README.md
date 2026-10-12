@@ -42,12 +42,12 @@ Notebook 01 is self-contained (no clone). Download Kaggle outputs and commit the
 
 The two fine-tuning runs start from the same pretrained checkpoint and differ only in `Global.epoch_num`.
 
-The baseline is the unmodified official `latin_PP-OCRv5_mobile_rec` model (the same model that is fine-tuned), run with PaddlePaddle 3.2.1, PaddleOCR 3.3.0 and PaddleX 3.3.0 (see `requirements.txt`). Seed is 42 everywhere. All reported numbers are measured on `rec_test.txt` only.
+The baseline is the unmodified official `latin_PP-OCRv5_mobile_rec` model (same PP-OCRv5 mobile architecture as the fine-tuned model, but with its original Latin weights and dictionary; the fine-tuned model starts from the generic pretrained checkpoint `PP-OCRv5_mobile_rec_pretrained.pdparams` with the Vietnamese dictionary `vi_dict.txt`), run with PaddlePaddle 3.2.1, PaddleOCR 3.3.0 and PaddleX 3.3.0 (see `requirements.txt`). Seed is 42 everywhere. All reported numbers are measured on `rec_test.txt` only.
 
 ## JSONL evaluation
 
 ```bash
-python eval.py --predictions results/pred_baseline_ppocrv5_mobile.jsonl
+python eval.py --predictions results/baseline/pred_baseline_ppocrv5_mobile.jsonl
 ```
 
 The utility applies NFC normalisation and reports `acc` and `norm_edit_dis` (spaces kept, the headline numbers) plus `acc_ignore_space` and `norm_edit_dis_ignore_space` (all whitespace removed, for comparison only).
