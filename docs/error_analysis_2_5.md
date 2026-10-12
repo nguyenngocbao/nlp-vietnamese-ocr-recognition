@@ -1,6 +1,6 @@
 # Mục 2.5 — Phân tích lỗi (mô hình fine-tune 4 epoch, tập test `rec_test.txt`)
 
-Đề yêu cầu lấy 20 dòng đọc sai và chia thành ba loại: sai dấu thanh, sai chữ cái, lặp ký tự. Nguồn dữ liệu là `results/ft_4epochs/pred_ppocrv5_mobile_4epochs.jsonl`. Trên 3.003 dòng test có 1.292 dòng sai (so khớp chính xác sau NFC, tính cả khoảng trắng). 20 dòng được chọn ngẫu nhiên từ 1.292 dòng sai bằng `random.seed(42)`, rồi được căn chỉnh gt-pred theo ký tự (`scripts/error_analysis.py`) và rà lại bằng tay.
+Đề yêu cầu lấy 20 dòng đọc sai và chia thành ba loại: sai dấu thanh, sai chữ cái, lặp ký tự. Nguồn dữ liệu là `results/ft_4epochs/pred_ppocrv5_mobile_4epochs.jsonl`. Trên 3.003 dòng test có 1.292 dòng sai (so khớp chính xác sau NFC, tính cả khoảng trắng). 20 dòng được chọn ngẫu nhiên từ 1.292 dòng sai (theo thứ tự trong file pred) bằng `random.seed(42)` và `random.sample(..., 20)`, rồi được đối chiếu gt-pred từng ký tự và phân loại bằng tay.
 
 Cách phân loại: (i) sai dấu thanh khi hai ký tự chỉ khác một trong năm dấu thanh (sắc, huyền, hỏi, ngã, nặng); (ii) sai chữ cái khi thay, thêm hoặc bớt một chữ cái, kể cả các chữ có dấu phụ khác nhau như a/â/ă, o/ô/ơ, d/đ; (iii) lặp ký tự khi mô hình thêm một ký tự lặp liền kề (kiểu `nhưnng`, `nguười`). Một dòng có nhiều lỗi được xếp theo loại có nhiều lỗi nhất. Dòng chỉ sai khoảng trắng, dấu câu hoặc mất cả cụm cuối dòng không thuộc ba loại của đề nên được đếm riêng ở nhóm "khác".
 
@@ -31,17 +31,17 @@ Cách phân loại: (i) sai dấu thanh khi hai ký tự chỉ khác một trong
 
 ## Thống kê
 
-| Loại lỗi | 20 dòng mẫu | Tỷ lệ | Toàn bộ 1.292 dòng sai (tự động) |
-|---|---:|---:|---:|
-| (i) Sai dấu thanh | 6 | 30% | 30,7% |
-| (ii) Sai chữ cái | 9 | 45% | 44,7% |
-| (iii) Lặp ký tự | 0 | 0% | 0,2% |
-| Khác (khoảng trắng, dấu câu, mất cụm chữ) | 5 | 25% | 24,4% |
+| Loại lỗi | 20 dòng mẫu | Tỷ lệ |
+|---|---:|---:|
+| (i) Sai dấu thanh | 6 | 30% |
+| (ii) Sai chữ cái | 9 | 45% |
+| (iii) Lặp ký tự | 0 | 0% |
+| Khác (khoảng trắng, dấu câu, mất cụm chữ) | 5 | 25% |
 
-Nếu chỉ tính 15 dòng thuộc ba loại của đề thì sai dấu thanh chiếm 40%, sai chữ cái 60% và lặp ký tự 0%. Kết quả tự động trên toàn bộ dòng sai gần trùng với mẫu 20 dòng nên mẫu này đại diện được cho tập lỗi.
+Nếu chỉ tính 15 dòng thuộc ba loại của đề thì sai dấu thanh chiếm 40%, sai chữ cái 60% và lặp ký tự 0%.
 
 ## Nhận xét
 
-Lỗi chiếm nhiều nhất là sai chữ cái (khoảng 45%), thường là nhầm giữa các chữ có hình dạng gần nhau như `a`/`â`/`ă`, `o`/`ô`/`ơ`, `u`/`n` hoặc `I`/`1`. Sai dấu thanh đứng thứ hai (khoảng 30%), phù hợp với việc dấu thanh là chi tiết nhỏ nhất trên ảnh dòng chữ độ phân giải thấp. Lặp ký tự gần như không xảy ra (khoảng 0,2%, chủ yếu là `PHHAM`), trái với kiểu lỗi mà đề nêu làm ví dụ. Điều này hợp lý vì sau khi vá backbone, CTC có 120 bước thời gian cho tối đa 80 ký tự nên mô hình không bị dồn ép phải lặp ký tự để lấp bước thời gian. Một phần tư số dòng sai thuộc nhóm khác, chủ yếu là khoảng trắng và dấu câu, nên bỏ qua khoảng trắng chỉ nâng acc từ 0,5698 lên 0,5921.
+Lỗi chiếm nhiều nhất là sai chữ cái (khoảng 45%), thường là nhầm giữa các chữ có hình dạng gần nhau như `a`/`â`/`ă`, `o`/`ô`/`ơ`, `u`/`n` hoặc `I`/`1`. Sai dấu thanh đứng thứ hai (khoảng 30%), phù hợp với việc dấu thanh là chi tiết nhỏ nhất trên ảnh dòng chữ độ phân giải thấp. Lặp ký tự không xuất hiện trong mẫu, trái với kiểu lỗi mà đề nêu làm ví dụ. Điều này hợp lý vì sau khi vá backbone, CTC có 120 bước thời gian cho tối đa 80 ký tự nên mô hình không bị dồn ép phải lặp ký tự để lấp bước thời gian. Một phần tư số dòng sai thuộc nhóm khác, chủ yếu là khoảng trắng và dấu câu, nên bỏ qua khoảng trắng chỉ nâng acc từ 0,5698 lên 0,5921.
 
 Một điểm cần lưu ý khi đọc các con số này là chất lượng nhãn. Đọc bằng mắt trên văn bản, khoảng một nửa số dòng mẫu (2, 4, 5, 7, 13, 14, 15, 16, 17, 18) có nhãn `gt` chứa lỗi OCR gốc của sách quét (ví dụ `Đáng ta … còng nhàn`, `Mỹ vui Việt Nam (1980-1975)`) trong khi `pred` đúng hoặc đúng hơn. Vì vậy acc 0,5698 là cận dưới của chất lượng thật và một phần lỗi "sai chữ cái" thực chất là nhiễu nhãn. Nhận định này dựa trên văn bản, chưa đối chiếu lại với ảnh gốc.

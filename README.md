@@ -18,7 +18,6 @@ notebooks/   Kaggle notebooks, in report order
 src/         Shared metric and JSONL utilities
 results/     Small versioned metrics and prediction files
 reports/     Error-analysis artifacts and figures
-scripts/     Repeatable command-line helpers
 ```
 
 Large artifacts are excluded from Git: image data, pretrained weights, checkpoints and exported models. Record their links in `docs/experiment_log.md`.
