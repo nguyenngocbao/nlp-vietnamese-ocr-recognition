@@ -44,9 +44,7 @@ def build(epochs):
     cells.append(md("f01-title", f'''
 # Fine-tune PP-OCRv5 mobile — {epochs} epoch
 
-Fine-tune `PP-OCRv5_mobile_rec` trên `rec_train.txt` ({epochs} epoch), chọn checkpoint cuối, rồi đánh giá trên `rec_test.txt` bằng đúng `src/metrics.py` đã dùng cho baseline. Hai notebook fine-tune (2 và 4 epoch) được sinh từ **cùng một template** (`scripts/make_finetune_notebooks.py`) và dùng hai config chỉ khác `Global.epoch_num` và đường dẫn output, nên chênh lệch kết quả chỉ do số epoch.
-
-**Chuẩn bị trên Kaggle:** gắn Input `baonguyenngoc0902/hcmus-nlp-vietnamese-recognition-resources`, bật **GPU T4 x2** và **Internet**. Tuỳ chọn: thêm Kaggle Secret `huggingface.co` (quyền ghi) để cell cuối đẩy checkpoint lên Hugging Face; không có thì cell tự bỏ qua. Dùng **Save & Run All** để chạy trọn pipeline.
+Notebook này fine-tune mô hình nhận diện chữ `PP-OCRv5_mobile_rec` trên tập huấn luyện `rec_train.txt` (93.997 dòng) trong {epochs} epoch với từ điển tiếng Việt `vi_dict.txt`, rồi đánh giá checkpoint cuối trên `rec_test.txt` bằng đúng `src/metrics.py` đã dùng cho baseline. Hai notebook fine-tune (2 và 4 epoch) được sinh từ cùng một template và dùng hai config chỉ khác `Global.epoch_num` cùng đường dẫn lưu kết quả, nên chênh lệch kết quả chỉ do số epoch. Notebook chạy trên Kaggle với GPU T4 x2 và Internet; nếu có Kaggle Secret `huggingface.co` (quyền ghi) thì checkpoint được đẩy lên Hugging Face ở cell cuối, nếu không thì bước đó tự bỏ qua.
 '''))
     for cid in ("b02-install-md", "b03-install", "b04-env-md", "b05-env", "b05a-repo-md", "b05b-repo",
                 "b06-data-md", "b07-data", "b08-labels-md", "3ea17b70"):
@@ -55,7 +53,7 @@ Fine-tune `PP-OCRv5_mobile_rec` trên `rec_train.txt` ({epochs} epoch), chọn c
     cells.append(md("f06-cfg-md", f'''
 ## 6. Đọc config fine-tune
 
-Config nằm trong repository (`configs/ppocrv5_mobile/`), không viết tay trong notebook. Cell kiểm tra: số epoch đúng bản này, đường dẫn dữ liệu/từ điển khớp thư mục Input, và **so với config của bản {other} epoch thì chỉ khác `epoch_num`, `save_model_dir`, `save_res_path`**. Đây là bằng chứng cho yêu cầu 2.4 (hai cấu hình chỉ khác số epoch).
+Toàn bộ siêu tham số nằm trong file config của repository (`configs/ppocrv5_mobile/`), không viết tay trong notebook. Cell kiểm tra số epoch đúng với notebook này, đường dẫn dữ liệu khớp, và so với config của bản {other} epoch để xác nhận hai file chỉ khác `epoch_num`, `save_model_dir` và `save_res_path`; đây là bằng chứng cho yêu cầu mục 2.4 rằng hai cấu hình chỉ khác số epoch.
 '''))
     cells.append(code("f07-cfg", f'''
 import difflib
@@ -98,10 +96,7 @@ print("epoch_num:", EPOCHS, "| max_text_length:", MAX_TEXT_LEN, "| image width:"
     cells.append(md("f08-stats-md", '''
 ## 7. Thống kê dữ liệu và kiểm tra từ điển
 
-Hai kiểm tra trước khi tốn thời gian huấn luyện:
-
-- **Độ dài nhãn và độ rộng ảnh.** Config gốc của PaddleOCR giới hạn 25 ký tự và ảnh rộng 320 px (khoảng 40 bước CTC), trong khi dòng tiếng Việt dài tới ~80 ký tự. Cell in phân vị độ dài nhãn và độ rộng ảnh sau khi co về cao 48 px để chắc rằng `max_text_length` và chiều rộng trong config đủ lớn. Nhãn dài hơn `max_text_length` sẽ bị PaddleOCR bỏ qua khi huấn luyện.
-- **Từ điển `vi_dict.txt`.** Ký tự nằm ngoài từ điển không mô hình nào học được; cell đếm tỷ lệ ký tự nhãn train bị thiếu trong từ điển (config có `use_space_char: true`, tự thêm khoảng trắng).
+Hai kiểm tra trước khi tốn thời gian huấn luyện. (i) Độ dài nhãn và độ rộng ảnh: config gốc của PaddleOCR dành cho dòng ngắn (tối đa 25 ký tự, ảnh rộng 320 px), trong khi dòng tiếng Việt dài tới khoảng 80 ký tự; cell in phân vị độ dài nhãn và độ rộng ảnh để chắc `max_text_length` và chiều rộng trong config đủ lớn, vì nhãn dài hơn `max_text_length` bị PaddleOCR bỏ qua khi huấn luyện. (ii) Từ điển `vi_dict.txt`: ký tự ngoài từ điển thì mô hình không thể học, nên cell đếm tỷ lệ ký tự trong nhãn train bị thiếu trong từ điển.
 '''))
     cells.append(code("f09-stats", '''
 import random
@@ -140,9 +135,9 @@ print("Most frequent missing:", missing.most_common(10))
     cells.append(md("f10-src-md", '''
 ## 8. Mã nguồn PaddleOCR và trọng số tiền huấn luyện
 
-Huấn luyện dùng `tools/train.py` của PaddleOCR nên cần mã nguồn đúng tag `v3.3.0` (cùng phiên bản với thư viện đã cài). Cell ghi lại mã commit vào `ENV_INFO`, **vá một lỗi của backbone** (xem bên dưới), cài vài thư viện phụ trợ của PaddleOCR rồi kiểm tra `import ppocr`, sau đó tải `PP-OCRv5_mobile_rec_pretrained.pdparams`. Đây là điểm khởi đầu fine-tune; lớp đầu ra có số lớp khác (từ điển tiếng Việt) nên PaddleOCR tự bỏ qua tham số không khớp kích thước và khởi tạo lại các lớp đó.
+Huấn luyện dùng `tools/train.py` của PaddleOCR nên cell lấy mã nguồn đúng tag `v3.3.0` (cùng phiên bản với thư viện đã cài), ghi lại mã commit, cài thêm vài thư viện phụ trợ rồi tải checkpoint tiền huấn luyện `PP-OCRv5_mobile_rec_pretrained.pdparams` làm điểm khởi đầu. Lớp đầu ra có số lớp khác vì từ điển tiếng Việt, nên PaddleOCR bỏ qua các tham số không khớp kích thước và khởi tạo lại.
 
-**Bản vá bắt buộc.** Ở cuối backbone `PPLCNetV3` (`ppocr/modeling/backbones/rec_lcnetv3.py`, v3.3.0), lúc huấn luyện mã gốc luôn ép số bước thời gian của CTC về đúng 40 (`F.adaptive_avg_pool2d(x, [1, 40])`), còn lúc suy luận số bước là `W/8`. Config gốc rộng 320 px nên hai con số trùng nhau (320/8 = 40). Nhãn tiếng Việt dài trung vị 57 và tối đa 80 ký tự, nên với mã gốc khoảng 74% dòng có đích CTC không thể căn chỉnh (CTC cần số bước ≥ độ dài nhãn) và mô hình không hội tụ. Cell bên dưới thay `40` bằng `W/8` (cùng hình dạng với nhánh suy luận); với ảnh rộng 960 ta có 120 bước, đủ cho nhãn dài nhất. Bản vá này dùng chung cho cả hai lần chạy 2 và 4 epoch nên không phải biến thí nghiệm.
+Cell này còn vá một hạn chế của backbone `PPLCNetV3` (`ppocr/modeling/backbones/rec_lcnetv3.py`). Hàm loss CTC đòi số bước thời gian của mô hình không nhỏ hơn độ dài nhãn. Mã gốc ép số bước này về đúng 40 khi huấn luyện, còn lúc suy luận nó là W/8 (W là chiều rộng ảnh); hai con số trùng nhau ở ảnh rộng 320 px (320/8 = 40) nên với cấu hình gốc không có vấn đề. Nhãn tiếng Việt dài trung vị 57 và tối đa 80 ký tự, nên với mã gốc khoảng 74% dòng không thể căn chỉnh và mô hình không hội tụ. Bản vá thay 40 bằng W/8 (với ảnh rộng 960 px là 120 bước, đủ cho nhãn dài nhất) và dùng chung cho cả hai lần chạy 2 và 4 epoch, nên không phải biến thí nghiệm.
 '''))
     cells.append(code("f11-src", '''
 import urllib.request
@@ -186,9 +181,7 @@ print("Pretrained:", PRETRAINED_PATH, f"({PRETRAINED_PATH.stat().st_size / 1e6:.
     cells.append(md("f12-train-md", f'''
 ## 9. Huấn luyện
 
-Chạy `tools/train.py` đúng với config trong repository, không ghi đè tham số nào, trên 2 GPU T4 (`paddle.distributed.launch`). Checkpoint lưu sau mỗi epoch (`save_epoch_step: 1`); PaddleOCR luôn ghi thêm `latest` (epoch cuối) và `best_accuracy` (tốt nhất trên `rec_val.txt`, đánh giá mỗi ~1000 bước). **Bài báo cáo dùng `latest`**, tức mô hình sau đúng {epochs} epoch, để so sánh 2 và 4 epoch công bằng; `best_accuracy` chỉ để tham khảo.
-
-Thời gian huấn luyện là tổng thời gian chạy lệnh (gồm cả các lần đánh giá trên tập val) và được lưu vào `train_time.json`. Cả hai notebook đo theo cùng một cách, trên cùng loại GPU.
+Chạy `tools/train.py` đúng với config trong repository trên 2 GPU T4, không ghi đè tham số nào. Checkpoint được lưu sau mỗi epoch (`save_epoch_step: 1`) để còn dùng được nếu phiên Kaggle bị ngắt; PaddleOCR luôn ghi thêm `latest` (sau epoch cuối) và `best_accuracy` (tốt nhất trên tập validation `rec_val.txt`, đánh giá mỗi khoảng 1.000 bước). Báo cáo dùng `latest`, tức mô hình sau đúng {epochs} epoch, để so sánh 2 và 4 epoch công bằng; `best_accuracy` chỉ để tham khảo. Thời gian huấn luyện là tổng thời gian chạy lệnh (kể cả các lần đánh giá trên validation) và được đo giống nhau ở cả hai notebook.
 '''))
     cells.append(code("f13-train", '''
 GPUS = "0,1"
@@ -226,7 +219,7 @@ print(f"Training time: {train_seconds:.1f} s ({train_seconds / 60:.1f} min)")
     cells.append(md("f14-export-md", '''
 ## 10. Xuất mô hình suy luận
 
-`tools/export_model.py` chuyển checkpoint `latest` thành mô hình suy luận (đã gắn từ điển và kích thước ảnh từ config). Mô hình này được nạp lại bằng `TextRecognition` của PaddleOCR, đúng đường dự đoán đã dùng cho baseline, nên hai bên so sánh được trực tiếp.
+Chuyển checkpoint `latest` thành mô hình suy luận (đã gắn từ điển và kích thước ảnh từ config). Mô hình này được nạp lại bằng `TextRecognition` của PaddleOCR, đúng đường dự đoán đã dùng cho baseline, nên hai bên so sánh được trực tiếp.
 '''))
     cells.append(code("f15-export", '''
 INFER_DIR = OUTPUT_DIR / "inference"
@@ -240,14 +233,14 @@ print(sorted(path.name for path in INFER_DIR.iterdir()))
     cells.append(md("f16-resolve-md", '''
 ## 11. Ghép nhãn với ảnh test
 
-Giống notebook baseline: ghép từng dòng `rec_test.txt` với đường dẫn ảnh thật (3.003 dòng).
+Giống notebook baseline: đổi đường dẫn ảnh tương đối trong `rec_test.txt` thành đường dẫn thật và kiểm tra đủ 3.003 ảnh test, để mọi số liệu được đo trên đúng tập test mà baseline đã dùng.
 '''))
     cells.append(reuse("5b96a998"))
 
     cells.append(md("f17-predict-md", '''
 ## 12. Dự đoán toàn bộ tập test và lưu JSONL
 
-Nạp mô hình đã fine-tune và dự đoán 3.003 ảnh với `batch_size=1`, giống hệt baseline (batch khác nhau làm đệm ảnh khác đi và đổi kết quả). Mỗi dòng JSONL có `image`, `gt`, `pred`, đúng định dạng mà `eval.py` và `src/jsonl.py` yêu cầu.
+Nạp mô hình đã fine-tune và dự đoán 3.003 ảnh test với `batch_size=1`, giống hệt baseline (batch khác nhau làm ảnh được đệm khác đi và đổi kết quả). Mỗi kết quả được ghi thành một dòng JSON gồm `image`, `gt` và `pred`, đúng định dạng mà `eval.py` và `src/jsonl.py` yêu cầu.
 '''))
     cells.append(code("f18-predict", '''
 from paddleocr import TextRecognition
@@ -293,7 +286,7 @@ print("Sample:", prediction_rows[0])
     cells.append(md("f19-metrics-md", '''
 ## 13. Tính metric báo cáo
 
-Dùng `src/metrics.py` (cùng bản với baseline): `acc` và `norm_edit_dis` giữ khoảng trắng là số liệu chính; hai metric `*_ignore_space` là số liệu phụ. Cell cũng lưu thời gian huấn luyện, phiên bản thư viện, seed, GPU, commit repo và commit PaddleOCR để điền bảng so sánh (2.3) và `docs/experiment_log.md`.
+Dùng `src/metrics.py` giống baseline: `acc` và `norm_edit_dis` (giữ khoảng trắng) là số liệu chính, hai metric `*_ignore_space` là số liệu phụ. Cell cũng lưu thời gian huấn luyện, phiên bản thư viện, seed, GPU, mã commit của repository và của PaddleOCR để điền bảng so sánh (mục 2.3) và nhật ký thí nghiệm.
 '''))
     cells.append(code("f20-metrics", '''
 from src.metrics import normalize_text, recognition_metrics
@@ -322,7 +315,7 @@ print(json.dumps(metrics, ensure_ascii=False, indent=2))
     cells.append(md("f21-xcheck-md", '''
 ## 14. Đối chiếu bằng công cụ đánh giá của PaddleOCR (tuỳ chọn)
 
-Chạy `tools/eval.py` trên `rec_test.txt` với checkpoint `latest`. Số `acc` của PaddleOCR không chuẩn hóa NFC và không dùng `src/metrics.py`, nên chỉ để kiểm tra đường suy luận đã xuất không bị lệch (kỳ vọng gần bằng `acc` ở trên). Lỗi ở cell này không ảnh hưởng kết quả chính.
+Chạy `tools/eval.py` của PaddleOCR trên `rec_test.txt` với checkpoint `latest` để kiểm tra chéo. `acc` của công cụ này không chuẩn hóa NFC và không dùng `src/metrics.py`, nên chỉ cần gần bằng `acc` ở trên; mục đích là xác nhận mô hình đã xuất không bị lệch so với checkpoint. Lỗi ở cell này không ảnh hưởng kết quả chính.
 '''))
     cells.append(code("f22-xcheck", '''
 try:
@@ -336,9 +329,9 @@ except Exception as exc:  # không chặn pipeline
 '''))
 
     cells.append(md("f23-upload-md", f'''
-## 15. Lưu checkpoint lên Hugging Face và liệt kê file cần lấy
+## 15. Lưu checkpoint lên Hugging Face và liệt kê file kết quả
 
-Nếu có Kaggle Secret `huggingface.co`, đẩy thư mục `{run}/` (checkpoint `latest`, `best_accuracy`, mô hình suy luận, config, log) lên repo `nngocbao090/hcmus-vi-paddleocr-rec`; file `*.pdopt` (trạng thái optimizer, không cần để suy luận) bị bỏ qua. Không có token thì bỏ qua, checkpoint vẫn nằm trong Output của notebook. Hai file kết quả nhỏ trong `results/` (JSONL và metrics) là thứ cần đưa vào repository.
+Nếu có Kaggle Secret `huggingface.co`, cell đẩy thư mục `ppocrv5_mobile_{epochs}epochs/` (checkpoint `latest`, `best_accuracy`, mô hình suy luận, config, log) lên repo `nngocbao090/hcmus-vi-paddleocr-rec` để nộp làm checkpoint; trạng thái optimizer `*.pdopt` không cần cho suy luận nên bị bỏ qua. Nếu không có token thì bước này được bỏ qua và checkpoint vẫn nằm trong Output của notebook. Cuối cùng cell liệt kê hai file kết quả nhỏ (JSONL và metrics) cần đưa vào repository.
 '''))
     cells.append(code("f24-upload", '''
 HF_REPO = "nngocbao090/hcmus-vi-paddleocr-rec"
