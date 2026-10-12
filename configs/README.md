@@ -1,7 +1,7 @@
 # Experiment configurations
 
 - `upstream_reference/latin_PP-OCRv5_mobile_rec.yml` — the upstream PaddleOCR **v3.3.0** training config the fine-tuning configs are derived from. Reference only; never edit it.
-- `ppocrv5_mobile/ppocrv5_mobile_{2,4}epochs.yml` — the two runnable, complete configs. They are **generated** by `scripts/make_finetune_configs.py` (`python scripts/make_finetune_configs.py`), which applies the same asserted text edits to the upstream file. Do not hand-edit them; change the script and regenerate.
+- `ppocrv5_mobile/ppocrv5_mobile_{2,4}epochs.yml` — the two runnable, complete configs, derived from the upstream file with the edits listed in the table below. Keep them identical except for the differences in the next line.
 - The 2-epoch and 4-epoch files differ only in `Global.epoch_num`, `Global.save_model_dir` and `Global.save_res_path` (notebooks 02/03 assert this with a diff before training).
 - `baseline/` — settings of the unmodified baseline run (no training).
 - `Train` uses `rec_train.txt`; `Eval` (validation during training) uses `rec_val.txt`. Final reporting uses `rec_test.txt` only.
