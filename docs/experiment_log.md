@@ -5,8 +5,8 @@ Record one entry per completed Kaggle run; never overwrite a result. All runs: s
 | Run ID | Date | Notebook | Config | Train time | Test acc | Test norm_edit_dis | Result files / checkpoint |
 |---|---|---|---|---:|---:|---:|---|
 | baseline | 2026-10-11 | `01_baseline_paddleocr_original.ipynb` | `configs/baseline/paddleocr_original_ppocrv5_mobile.yml` | n/a (not trained) | 0.0450 | 0.8549 | `results/baseline/` |
-| ft-2ep-prepatch (invalid) | 2026-10-11 | `02_finetune_ppocrv5_mobile_2epochs.ipynb` | `configs/ppocrv5_mobile/ppocrv5_mobile_2epochs.yml` | 6884.5 s (1 h 54 min 45 s) | 0.0440 | 0.8097 | `results/ft_2epochs/`; checkpoint: https://huggingface.co/nngocbao090/hcmus-vi-paddleocr-rec/tree/main/ppocrv5_mobile_2epochs |
-| ft-2ep | _pending_ | `02_finetune_ppocrv5_mobile_2epochs.ipynb` (patched) | `configs/ppocrv5_mobile/ppocrv5_mobile_2epochs.yml` | | | | |
+| ft-2ep-prepatch (invalid) | 2026-10-11 | `02_finetune_ppocrv5_mobile_2epochs.ipynb` | `configs/ppocrv5_mobile/ppocrv5_mobile_2epochs.yml` | 6884.5 s (1 h 54 min 45 s) | 0.0440 | 0.8097 | `results/ft_2epochs_prepatch/`; checkpoint: https://huggingface.co/nngocbao090/hcmus-vi-paddleocr-rec/tree/main/ppocrv5_mobile_2epochs |
+| ft-2ep | 2026-10-12 | `02_finetune_ppocrv5_mobile_2epochs.ipynb` (patched) | `configs/ppocrv5_mobile/ppocrv5_mobile_2epochs.yml` | 6567.5 s (1 h 49 min 27 s) | 0.5511 (ignore space 0.5721) | 0.9705 (ignore space 0.9682) | `results/ft_2epochs/`; checkpoint: https://huggingface.co/nngocbao090/hcmus-vi-paddleocr-rec/tree/main/ppocrv5_mobile_2epochs |
 | ft-4ep | _pending_ | `03_finetune_ppocrv5_mobile_4epochs.ipynb` | `configs/ppocrv5_mobile/ppocrv5_mobile_4epochs.yml` | | | | |
 
 Baseline note: the unmodified `latin_PP-OCRv5_mobile_rec` inference model (assignment item 2.1), repo commit `7ce973c`; its Latin dictionary lacks many Vietnamese characters, which explains the very low exact-match accuracy. Prediction time 76.4 s for 3,003 images (batch size 1).
