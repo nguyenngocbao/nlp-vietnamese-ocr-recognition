@@ -1,46 +1,47 @@
-# Mục 2.5 — Phân tích 20 dòng nhận diện sai (mô hình fine-tune 4 epoch)
+# Mục 2.5 — Phân tích lỗi (mô hình fine-tune 4 epoch, tập test `rec_test.txt`)
 
-Nguồn: `results/ft_4epochs/pred_ppocrv5_mobile_4epochs.jsonl`. Trên 3.003 dòng test có 1.292 dòng sai (so khớp chính xác sau NFC, có tính khoảng trắng). 20 dòng được chọn ngẫu nhiên từ 1.292 dòng sai bằng `random.seed(42)` (`scripts/error_analysis.py`), sau đó xếp nhóm bằng tay.
+Đề yêu cầu lấy 20 dòng đọc sai và chia thành ba loại: sai dấu thanh, sai chữ cái, lặp ký tự. Nguồn dữ liệu là `results/ft_4epochs/pred_ppocrv5_mobile_4epochs.jsonl`. Trên 3.003 dòng test có 1.292 dòng sai (so khớp chính xác sau NFC, tính cả khoảng trắng). 20 dòng được chọn ngẫu nhiên từ 1.292 dòng sai bằng `random.seed(42)`, rồi được căn chỉnh gt-pred theo ký tự (`scripts/error_analysis.py`) và rà lại bằng tay.
 
-Ba nhóm lỗi: (i) sai hoặc mất dấu/thanh tiếng Việt, chữ cái gốc đúng; (ii) sai khoảng trắng; (iii) lỗi còn lại, gồm nhầm ký tự, thừa/thiếu ký tự hoặc dấu câu, mất cả cụm chữ.
+Cách phân loại: (i) sai dấu thanh khi hai ký tự chỉ khác một trong năm dấu thanh (sắc, huyền, hỏi, ngã, nặng); (ii) sai chữ cái khi thay, thêm hoặc bớt một chữ cái, kể cả các chữ có dấu phụ khác nhau như a/â/ă, o/ô/ơ, d/đ; (iii) lặp ký tự khi mô hình thêm một ký tự lặp liền kề (kiểu `nhưnng`, `nguười`). Một dòng có nhiều lỗi được xếp theo loại có nhiều lỗi nhất. Dòng chỉ sai khoảng trắng, dấu câu hoặc mất cả cụm cuối dòng không thuộc ba loại của đề nên được đếm riêng ở nhóm "khác".
 
 ## Bảng 20 dòng
 
-| # | Nhóm | Nhãn (gt) | Mô hình đọc (pred) | Ghi chú |
-|---|---|---|---|---|
-| 1 | iii | …có “chính” chứ không | …có “chính”) chứ không | thừa dấu `)` |
-| 2 | i | Tròi dát bī ròi lai thai 1. | Trời dất bĩ rồi lại thái 1. | nhãn nhiễu, pred đúng hơn |
-| 3 | i | Bộ binh phải bắt 300 tên biển | Bộ binh phái bắt 300 tên biền | pred sai thanh |
-| 4 | i | Đáng ta chỉ đạo còng nhàn | Đảng ta chỉ đạo công nhân | nhãn nhiễu, pred đúng |
-| 5 | i | tuy nhiêu … các quyền trúng | tuy nhiều … các quyển trúng | nhãn nhiễu |
-| 6 | iii | …lũng bên cạnh Mã Ấp, | …náu ở trong | mất cụm cuối dòng |
-| 7 | i | …ngồi thay vong / phía ta đằng trước | …phía tả đằng trước | nhãn nhiễu |
-| 8 | iii | tháng II, … chỉ huy | tháng 1I, … chỉ-huy | nhầm `I`/`1`, thêm gạch nối |
-| 9 | i | năm Bính | năm Binh- | mất dấu sắc (gạch nối cuối dòng không có trong nhãn) |
-| 10 | iii | CHÚ GIẢI | CHÔ GIẢI | nhầm chữ hoa Ú/Ô |
-| 11 | iii | – Quận công nha 21 … | Quận công nha 21 … - Hoàng … | mất gạch đầu dòng, đổi `–`/`-` |
-| 12 | ii | Quân ngũ: nam | Quân ngũ : nam | thừa khoảng trắng trước `:` |
-| 13 | iii | Việt sứ liêu án, Bảnđánh máy cùa | Việt sử tiêu án, Bản đánh máy của … | nhãn nhiễu, nhiều loại lỗi |
-| 14 | i | đánh hãng. Nác Thu | đánh hăng. Nặc Thu | nhãn nhiễu |
-| 15 | iii | Nhận là … phách lợi | nhận là … phúc lợi | sai chữ hoa/thường, nhãn nhiễu |
-| 16 | iii | Túr suong chi huy sur. | Tú suong chỉ huy sú. | dòng ngắn, nhãn nhiễu |
-| 17 | iii | Mỹ vui Việt Nam (1980-1975), Ninh Công an | Mỹ và Việt Nam (1950-1975), Nxb. Công an … 2004. | nhãn nhiễu, pred đúng |
-| 18 | iii | dều dạ rau cả lên | đều dạ ran cả lên | nhãn nhiễu |
-| 19 | iii | giữ công việc hai ti, | giữ công việc hai ti', | thừa dấu `'` |
-| 20 | i | « thứ II), sứ Tàu | « thứ II), sử Tàu | pred sai thanh (đúng là "sứ") |
+| # | Loại | Nhãn (gt) | Mô hình đọc (pred) |
+|---|---|---|---|
+| 1 | khác | …có “chính” chứ không | …có “chính”) chứ không |
+| 2 | chữ cái | Tròi dát bī ròi lai thai 1. | Trời dất bĩ rồi lại thái 1. |
+| 3 | dấu thanh | Bộ binh phải bắt 300 tên biển | Bộ binh phái bắt 300 tên biền |
+| 4 | chữ cái | Đáng ta chỉ đạo còng nhàn và | Đảng ta chỉ đạo công nhân và |
+| 5 | dấu thanh | tuy nhiêu, mà xét các quyền trúng | tuy nhiều, mà xét các quyển trúng |
+| 6 | khác | …vạn náu ở trong lũng bên cạnh Mã Ấp, | …vạn náu ở trong |
+| 7 | dấu thanh | …đến phía ta đằng trước… | …đến phía tả đằng trước… |
+| 8 | chữ cái | tháng II, … chỉ huy | tháng 1I, … chỉ-huy |
+| 9 | dấu thanh | …tháng tám năm Bính | …tháng tám năm Binh- |
+| 10 | chữ cái | CHÚ GIẢI CỦA DỊCH GIẢ: | CHÔ GIẢI CỦA DỊCH GIẢ: |
+| 11 | khác | – Quận công nha 21 người, – Hoàng… | Quận công nha 21 người, - Hoàng… |
+| 12 | khác | Quân ngũ: nam và bắc… | Quân ngũ : nam và bắc… |
+| 13 | dấu thanh | Việt sứ liêu án, … Bảnđánh máy cùa | Việt sử tiêu án, … Bản đánh máy của |
+| 14 | chữ cái | đánh hãng. Nác Thu | đánh hăng. Nặc Thu |
+| 15 | chữ cái | Nhận là … phách lợi | nhận là … phúc lợi |
+| 16 | chữ cái | Túr suong chi huy sur. | Tú suong chỉ huy sú. |
+| 17 | chữ cái | Mỹ vui Việt Nam (1980-1975), Ninh Công an | Mỹ và Việt Nam (1950-1975), Nxb. Công an |
+| 18 | chữ cái | dều dạ rau cả lên | đều dạ ran cả lên |
+| 19 | khác | giữ công việc hai ti, | giữ công việc hai ti', |
+| 20 | dấu thanh | « thứ II), sứ Tàu | « thứ II), sử Tàu |
 
-## Thống kê 20 dòng
+## Thống kê
 
-| Nhóm | Số dòng | Tỷ lệ |
-|---|---:|---:|
-| (i) sai hoặc mất dấu/thanh | 8 | 40% |
-| (ii) sai khoảng trắng | 1 | 5% |
-| (iii) nhầm ký tự, thừa/thiếu ký tự hoặc dấu câu, mất cụm chữ | 11 | 55% |
+| Loại lỗi | 20 dòng mẫu | Tỷ lệ | Toàn bộ 1.292 dòng sai (tự động) |
+|---|---:|---:|---:|
+| (i) Sai dấu thanh | 6 | 30% | 30,7% |
+| (ii) Sai chữ cái | 9 | 45% | 44,7% |
+| (iii) Lặp ký tự | 0 | 0% | 0,2% |
+| Khác (khoảng trắng, dấu câu, mất cụm chữ) | 5 | 25% | 24,4% |
 
-Phân loại tự động thô (cùng quy tắc, chạy trên toàn bộ 1.292 dòng sai) cho (i) 41,3%, (ii) 5,2%, (iii) 53,6%, gần trùng với mẫu 20 dòng, nên mẫu này khá đại diện.
+Nếu chỉ tính 15 dòng thuộc ba loại của đề thì sai dấu thanh chiếm 40%, sai chữ cái 60% và lặp ký tự 0%. Kết quả tự động trên toàn bộ dòng sai gần trùng với mẫu 20 dòng nên mẫu này đại diện được cho tập lỗi.
 
 ## Nhận xét
 
-Lỗi chiếm đa số là nhóm (iii), nhưng nhìn vào từng dòng thì phần lớn là nhầm ký tự nhỏ (`I`/`1`, `Ú`/`Ô`, `u`/`n`), dấu câu thừa hoặc thiếu (`)`, `'`, gạch đầu dòng) và chỉ một dòng (số 6) bị mất cả cụm chữ cuối dòng. Nhóm (i) đứng thứ hai (40%) và là lỗi đặc thù tiếng Việt: mô hình đọc đúng chữ cái gốc nhưng sai thanh (phải/phái, sử/sứ), phù hợp với việc từ điển có 233 ký tự mà nhiều ký tự mang dấu rất giống nhau. Lỗi khoảng trắng (ii) hiếm (5%), nên bỏ qua khoảng trắng chỉ nâng acc từ 0,5698 lên 0,5921.
+Lỗi chiếm nhiều nhất là sai chữ cái (khoảng 45%), thường là nhầm giữa các chữ có hình dạng gần nhau như `a`/`â`/`ă`, `o`/`ô`/`ơ`, `u`/`n` hoặc `I`/`1`. Sai dấu thanh đứng thứ hai (khoảng 30%), phù hợp với việc dấu thanh là chi tiết nhỏ nhất trên ảnh dòng chữ độ phân giải thấp. Lặp ký tự gần như không xảy ra (khoảng 0,2%, chủ yếu là `PHHAM`), trái với kiểu lỗi mà đề nêu làm ví dụ. Điều này hợp lý vì sau khi vá backbone, CTC có 120 bước thời gian cho tối đa 80 ký tự nên mô hình không bị dồn ép phải lặp ký tự để lấp bước thời gian. Một phần tư số dòng sai thuộc nhóm khác, chủ yếu là khoảng trắng và dấu câu, nên bỏ qua khoảng trắng chỉ nâng acc từ 0,5698 lên 0,5921.
 
-Điểm đáng chú ý nhất là chất lượng nhãn: đọc bằng mắt trên văn bản, khoảng một nửa số dòng (2, 4, 5, 7, 13, 14, 15, 16, 17, 18) là trường hợp nhãn `gt` chứa lỗi OCR gốc của sách quét (ví dụ `Đáng ta … còng nhàn`, `Mỹ vui Việt Nam (1980-1975)`) trong khi `pred` lại đúng hoặc đúng hơn. Vì vậy acc 0,5698 là cận dưới của chất lượng thật, và một phần "lỗi" thực chất là nhiễu nhãn. Cần lưu ý đây là nhận định dựa trên văn bản, chưa đối chiếu lại với ảnh gốc.
+Một điểm cần lưu ý khi đọc các con số này là chất lượng nhãn. Đọc bằng mắt trên văn bản, khoảng một nửa số dòng mẫu (2, 4, 5, 7, 13, 14, 15, 16, 17, 18) có nhãn `gt` chứa lỗi OCR gốc của sách quét (ví dụ `Đáng ta … còng nhàn`, `Mỹ vui Việt Nam (1980-1975)`) trong khi `pred` đúng hoặc đúng hơn. Vì vậy acc 0,5698 là cận dưới của chất lượng thật và một phần lỗi "sai chữ cái" thực chất là nhiễu nhãn. Nhận định này dựa trên văn bản, chưa đối chiếu lại với ảnh gốc.
